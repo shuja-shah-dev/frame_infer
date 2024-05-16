@@ -1,0 +1,23 @@
+{
+  "routes": [
+    {
+      "path": "/mission/<int:mission_id>/inference/list/",
+      "methods": ["GET"],
+      "handler": "mission_handler",
+      "description": "Get a list of all inference result for a mission"
+    },
+    {
+      "path": "/inference/create/",
+      "methods": ["POST"],
+      "handler": "inference_handler",
+      "description": "Create a new inference result"
+    },
+
+    {
+      "path": "/mission/<int:mission_id>/delete/",
+      "methods": ["DELETE"],
+      "handler": "mission_handler",
+      "description": "Delete All the inference result (if any) along with mission"
+    }
+  ]
+}

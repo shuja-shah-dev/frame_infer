@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from models.mission import Mission
+from models.inference import InferedResult
 from core_config.db import db
 
 
@@ -46,3 +47,28 @@ def update_mission(mission_id):
     mission.mission_start_date = data.get("mission_start_date")
     db.session.commit()
     return jsonify({"message": "Mission updated successfully"})
+
+
+@mission_controller.route("/mission/<int:mission_id>/inference/list/", methods=["GET"])
+def List_inference(mission_id):
+    mission = Mission.query.get(mission_id)
+    if not mission:
+        return jsonify({"error": "Mission not found"}), 404
+
+    results = InferedResult.query.filter_by(mission_id=mission_id).all()
+    return jsonify([result.serialize() for result in results])
+
+
+@mission_controller.route("/mission/<int:mission_id>/delete/", methods=["DELETE"])
+def delete_mission(mission_id):
+    mission = Mission.query.get(mission_id)
+    if not mission:
+        return jsonify({"error": "Mission not found"}), 404
+    results = InferedResult.query.filter_by(mission_id=mission_id).all()
+    if results:
+        for result in results:
+            db.session.delete(result)
+
+    db.session.delete(mission)
+    db.session.commit()
+    return jsonify({"message": "Mission deleted successfully"})

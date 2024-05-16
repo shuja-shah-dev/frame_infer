@@ -1,17 +1,13 @@
 from flask import Flask, send_from_directory, request, jsonify
-import base64
-import cv2
-import asyncio
-from PIL import Image
+
 import os
-from ultralytics import YOLO
-import numpy as np
 from flask_cors import CORS
 import boto3
 from dotenv import load_dotenv
 from flask_migrate import Migrate
 from core_config.db import db, init_db
 from handlers.mission_handler import mission_controller
+from handlers.inference_handler import inference_controller
 
 
 load_dotenv()
@@ -33,109 +29,44 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
 init_db(app)
 
 CORS(app)
-migrate = Migrate(app, db)
 
 
+app.register_blueprint(inference_controller)
 app.register_blueprint(mission_controller)
+migrate = Migrate(app, db)
+# def perform_inference(image_path, model):
+#     try:
+#         # Load the image
+#         image = cv2.imread(image_path)
+#         results = model(image)
+#         annotated_frame = results[0].plot()
+#         _, buffer = cv2.imencode(".jpg", annotated_frame)
+
+#         # Encode the image data to base64
+#         encoded_image = base64.b64encode(buffer)
+
+#         return encoded_image
+#     except Exception as e:
+#         # If an error occurs during inference, print the error
+#         print(f"Error in performing inference: {e}")
+#         return None
 
 
-def perform_inference(image_path, model):
-    try:
-        # Load the image
-        image = cv2.imread(image_path)
-        results = model(image)
-        annotated_frame = results[0].plot()
-        _, buffer = cv2.imencode(".jpg", annotated_frame)
-
-        # Encode the image data to base64
-        encoded_image = base64.b64encode(buffer)
-
-        return encoded_image
-    except Exception as e:
-        # If an error occurs during inference, print the error
-        print(f"Error in performing inference: {e}")
-        return None
+# async def image_feed(websocket, path):
+#     try:
+#         model = YOLO("yolov8n.pt")
+#         image_path = await websocket.recv()
+#         annotated_image = perform_inference(image_path, model)
+#         if annotated_image:
+#             await websocket.send(annotated_image)
+#     except Exception as e:
+#         print(f"Error in sending annotated image: {e}")
 
 
-async def image_feed(websocket, path):
-    try:
-        model = YOLO("yolov8n.pt")
-        image_path = await websocket.recv()
-        annotated_image = perform_inference(image_path, model)
-        if annotated_image:
-            await websocket.send(annotated_image)
-    except Exception as e:
-        print(f"Error in sending annotated image: {e}")
 
-
-def run_yolo_inference(input_image, index):
-    # Load the input image
-    image = Image.open(input_image)
-    print("Received", input_image)
-
-    # Convert image to numpy array
-    image_array = np.array(image)
-    image_rgb = cv2.cvtColor(image_array, cv2.COLOR_BGR2RGB)
-
-    # Load YOLO model
-    model_path = os.path.join("model", "md.pt")
-    model = YOLO(model_path)
-
-    # Perform inference
-    result = model(image_rgb, conf=0.5)
-    detections = result[0].plot()
-
-    # Save the result image
-    result_dir = "result"
-    if not os.path.exists(result_dir):
-        os.makedirs(result_dir)
-
-    temp_output_path = os.path.join(result_dir, f"temp_image_{index}.jpg")
-    cv2.imwrite(temp_output_path, detections)
-
-    return temp_output_path
-
-
-@app.route("/image_feed", methods=["POST"])
-def image_feed_route():
-    annotated_images = []
-
-    image_file = False
-    print(request.files, "Recieved")
-    # Ensure that request.files is not empty
-    if image_file is None:
-        return jsonify({"error": "No files uploaded"}, 400)
-    else:
-        for index in range(len(request.files)):
-            file_key = f"file{index}"
-            image_file = request.files[file_key]
-
-            # Save the image to a temporary file
-            image_path = f"temp_image_{index}.jpg"
-            image_file.save(os.path.join("tmp", image_path))
-
-            # Run YOLO inference
-            try:
-                annotated_image_path = run_yolo_inference(
-                    os.path.join("tmp", image_path), index
-                )
-                annotated_images.append(annotated_image_path)
-                s3.upload_fileobj(image_file, "ainference", f"temp_image_{index}.jpg")
-            except Exception as e:
-                print(f"Error processing image {image_path}: {e}")
-                annotated_images.append(
-                    image_path
-                )  # Send original image if inference fails
-
-            # Remove the temporary image file
-
-    # Return annotated images or paths as a response
-    return jsonify(annotated_images)
-
-
-@app.route("/result/<path:filename>")
-def get_result(filename):
-    return send_from_directory("result", filename)
+# @app.route("/result/<path:filename>")
+# def get_result(filename):
+#     return send_from_directory("result", filename)
 
 
 if __name__ == "__main__":

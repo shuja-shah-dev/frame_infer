@@ -127,8 +127,10 @@ const VideoCapture = () => {
         const blob = base64toBlob(imageData, "image/png");
         formData.append(`file${index}`, blob);
       });
+
+      formData.append("mission_id",1)
       try {
-        const response = await fetch(`${BASE_URL}/image_feed`, {
+        const response = await fetch(`${BASE_URL}/inference/create/`, {
           method: "POST",
           body: formData,
         });
