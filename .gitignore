@@ -1,0 +1,18 @@
+winenv
+node_modules
+# IDE
+.idea
+.vscode
+
+# Models
+/model
+*.pt
+
+#Storage
+tmp
+result
+
+_pycache_
+.sqlite3
+instance
+.env
