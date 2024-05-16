@@ -1,0 +1,19 @@
+winenv
+node_modules
+# IDE
+.idea
+.vscode
+
+# Models
+/model
+*.pt
+
+#Storage
+tmp
+<<<<<<< HEAD
+result
+
+.env
+=======
+result
+>>>>>>> cedf4a0 (Full Functional Prototype I)
