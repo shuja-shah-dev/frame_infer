@@ -10,6 +10,7 @@ from flask_cors import CORS
 import boto3
 from dotenv import load_dotenv, dotenv_values
 from flask_sqlalchemy import SQLAlchemy
+from models.mission import Mission, db
 
 
 load_dotenv()
@@ -32,6 +33,7 @@ db = SQLAlchemy(app)
 
 
 CORS(app)
+
 
 def perform_inference(image_path, model):
     try:
@@ -131,7 +133,21 @@ def image_feed_route():
 def get_result(filename):
     return send_from_directory("result", filename)
 
-
+@app.route('/missions/create/', methods=['POST'])
+def create_mission():
+    data = request.get_json()
+    title = data.get("title")
+    if not title:
+        return jsonify({"error": "Title is required"}), 400
+    new_mission = Mission(title=title)
+    db.session.add(new_mission)
+    db.session.commit()
+    return (
+        jsonify(
+            {"message": "Mission created successfully", "mission_id": new_mission.id}
+        ),
+        201,
+    )
 
 
 if __name__ == "__main__":
