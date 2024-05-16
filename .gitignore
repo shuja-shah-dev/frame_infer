@@ -10,7 +10,7 @@ node_modules
 
 #Storage
 tmp
-result
+results/
 
 _pycache_
 .sqlite3

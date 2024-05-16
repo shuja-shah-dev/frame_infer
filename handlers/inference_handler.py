@@ -1,6 +1,8 @@
 from flask import Blueprint, request, jsonify
 from models.inference import InferedResult
 import os
+import sys 
+from shutil import copyfileobj
 
 from .modules.run_yolo import run_yolo_inference
 from core_config.db import db
@@ -23,11 +25,19 @@ def create():
             image_file = request.files[file_key]
 
             image_path = f"temp_image_{index}.jpg"
-            image_file.save(os.path.join("tmp", image_path))
+            temp_path = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), "tmp")
+            if not os.path.exists(temp_path):
+                os.makedirs(temp_path)
+
+            with open(os.path.join(temp_path, image_path), 'wb') as f:
+            
+                copyfileobj(image_file, f)
 
             try:
                 annotated_image_path = run_yolo_inference(
-                    os.path.join("tmp", image_path), index
+                    os.path.join(temp_path, image_path),
+                    index,
+                    mission_title=f"mission_{mission_id}",
                 )
                 annotated_images.append(annotated_image_path)
                 new_result = InferedResult(

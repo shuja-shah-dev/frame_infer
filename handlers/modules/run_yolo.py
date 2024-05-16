@@ -4,9 +4,10 @@ import numpy as np
 from ultralytics import YOLO
 
 import os
+import sys
 
 
-def run_yolo_inference(input_image, index):
+def run_yolo_inference(input_image, index, mission_title="mission"):
     image = Image.open(input_image)
     print("Received", input_image)
     image_array = np.array(image)
@@ -15,7 +16,9 @@ def run_yolo_inference(input_image, index):
     model = YOLO(model_path)
     result = model(image_rgb, conf=0.5)
     detections = result[0].plot()
-    result_dir = "result"
+    result_dir = os.path.join(
+        os.path.dirname(os.path.abspath(sys.argv[0])), "results", mission_title
+    )
     if not os.path.exists(result_dir):
         os.makedirs(result_dir)
 
