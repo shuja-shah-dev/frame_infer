@@ -18,6 +18,26 @@
       "methods": ["DELETE"],
       "handler": "mission_handler",
       "description": "Delete All the inference result (if any) along with mission"
+    },
+
+    {
+      "path": "/mission/create/",
+      "methods": ["POST"],
+      "handler": "mission_handler",
+      "description": "Create a new mission"
+    },
+    {
+      "path": "/mission/list/",
+      "methods": ["GET"],
+      "handler": "mission_handler",
+      "description": "Get a list of all missions"
+    },
+
+    {
+      "path": "/mission/<int:mission_id>/update/",
+      "methods": ["PUT"],
+      "handler": "mission_handler",
+      "description": "Update a mission"
     }
   ]
 }
