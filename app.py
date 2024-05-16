@@ -9,6 +9,8 @@ import numpy as np
 from flask_cors import CORS
 import boto3
 from dotenv import load_dotenv, dotenv_values
+from flask_sqlalchemy import SQLAlchemy
+
 
 load_dotenv()
 
@@ -22,10 +24,14 @@ s3 = boto3.client(
     region_name="ap-southeast-4",
 )
 app = Flask(__name__)
-CORS(app)
 
 app.config["UPLOAD_FOLDER"] = "uploads"
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db.sqlite"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+db = SQLAlchemy(app)
 
+
+CORS(app)
 
 def perform_inference(image_path, model):
     try:
@@ -124,6 +130,8 @@ def image_feed_route():
 @app.route("/result/<path:filename>")
 def get_result(filename):
     return send_from_directory("result", filename)
+
+
 
 
 if __name__ == "__main__":
