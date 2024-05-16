@@ -8,10 +8,10 @@ from ultralytics import YOLO
 import numpy as np
 from flask_cors import CORS
 import boto3
-from dotenv import load_dotenv, dotenv_values
-from flask_sqlalchemy import SQLAlchemy
+from dotenv import load_dotenv
 from flask_migrate import Migrate
-import datetime
+from core_config.db import db, init_db
+from handlers.mission_handler import mission_controller
 
 
 load_dotenv()
@@ -30,24 +30,13 @@ app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = "uploads"
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db.sqlite"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
-db = SQLAlchemy(app)
-
+init_db(app)
 
 CORS(app)
 migrate = Migrate(app, db)
 
 
-# Models
-
-
-class Mission(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(100), nullable=False)
-    mission_status = db.Column(db.String(50), nullable=False)
-    mission_start_date = db.Column(db.DateTime, nullable=False)
-
-    def __repr__(self):
-        return f"<Mission {self.mission_name}>"
+app.register_blueprint(mission_controller)
 
 
 def perform_inference(image_path, model):
@@ -147,32 +136,6 @@ def image_feed_route():
 @app.route("/result/<path:filename>")
 def get_result(filename):
     return send_from_directory("result", filename)
-
-
-@app.route("/missions/create/", methods=["POST"])
-def create_mission():
-    data = request.get_json()
-    title = data.get("title")
-    if not title:
-        return jsonify({"error": "Title is required"}), 400
-    mission_start_date = data.get("mission_start_date")
-
-    if not mission_start_date:
-        data.update({"mission_start_date": datetime.now()})
-        
-    new_mission = Mission(
-        title=title,
-        mission_status=data.get("mission_status"),
-        mission_start_date=data.get("mission_start_date"),
-    )
-    db.session.add(new_mission)
-    db.session.commit()
-    return (
-        jsonify(
-            {"message": "Mission created successfully", "mission_id": new_mission.id}
-        ),
-        201,
-    )
 
 
 if __name__ == "__main__":

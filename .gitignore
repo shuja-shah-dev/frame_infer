@@ -16,3 +16,4 @@ _pycache_
 .sqlite3
 instance
 .env
+*__pycache__*
