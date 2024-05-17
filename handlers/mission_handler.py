@@ -1,8 +1,11 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, send_file
 from models.mission import Mission
 from models.inference import InferedResult
 from core_config.db import db
+from .modules.prepare_pdf import prepare_pdf
 
+import os
+import sys
 
 mission_controller = Blueprint("mission_handler", __name__)
 
@@ -72,3 +75,32 @@ def delete_mission(mission_id):
     db.session.delete(mission)
     db.session.commit()
     return jsonify({"message": "Mission deleted successfully"})
+
+
+@mission_controller.route(
+    "/mission/<int:mission_id>/inference/result/download/", methods=["GET"]
+)
+def download_results(mission_id):
+    mission = Mission.query.get(mission_id)
+    if not mission:
+        return jsonify({"error": "Mission not found"}), 404
+
+    results = InferedResult.query.filter_by(mission_id=mission_id).all()
+    if not results:
+        return jsonify({"error": "You have not intatalized inference yet."}), 404
+
+    output_dir = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), "reports")
+
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    detect = [result.serialize() for result in results]
+    prepare_pdf(
+        detect,
+        os.path.join(output_dir, f"report_para_mission_{mission_id}.pdf"),
+    )
+
+    return send_file(
+        os.path.join(output_dir, f"report_para_mission_{mission_id}.pdf"),
+        as_attachment=True,
+    )

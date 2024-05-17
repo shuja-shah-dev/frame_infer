@@ -38,6 +38,20 @@
       "methods": ["PUT"],
       "handler": "mission_handler",
       "description": "Update a mission"
+    },
+
+    {
+      "path": "/inference/delete/all/",
+      "methods": ["DELETE"],
+      "handler": "inference_handler",
+      "description": "Delete all the inference results (USE FOR DEBUGGING ONLY)"
+    },
+
+    {
+      "path":"/mission/<int:mission_id>/inference/result/download/",
+      "methods": ["GET"],
+      "handler": "inference_handler",
+      "description": "Download the inference result for a mission"
     }
   ]
 }

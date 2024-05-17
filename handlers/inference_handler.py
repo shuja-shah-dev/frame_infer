@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from models.inference import InferedResult
 import os
-import sys 
+import sys
 from shutil import copyfileobj
 
 from .modules.run_yolo import run_yolo_inference
@@ -25,24 +25,30 @@ def create():
             image_file = request.files[file_key]
 
             image_path = f"temp_image_{index}.jpg"
-            temp_path = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), "tmp")
+            temp_path = os.path.join(
+                os.path.dirname(os.path.abspath(sys.argv[0])), "tmp"
+            )
             if not os.path.exists(temp_path):
                 os.makedirs(temp_path)
 
-            with open(os.path.join(temp_path, image_path), 'wb') as f:
-            
+            with open(os.path.join(temp_path, image_path), "wb") as f:
+
                 copyfileobj(image_file, f)
 
             try:
-                annotated_image_path = run_yolo_inference(
+                yolo = run_yolo_inference(
                     os.path.join(temp_path, image_path),
                     index,
                     mission_title=f"mission_{mission_id}",
                 )
+                annotated_image_path = yolo["annotated_image_path"]
+                detections = yolo["detections"]
                 annotated_images.append(annotated_image_path)
+                # {'detections': '(no detections), ', 'speed': {'preprocess': 21.993398666381836, 'inference': 418.86401176452637, 'postprocess': 1518.674373626709}, 'names': {0: 'anomaly'}}, '1')
+
                 new_result = InferedResult(
-                    image_path=image_path,
-                    detections="",
+                    image_path=annotated_image_path,
+                    detections=detections["detections"],
                     mission_id=mission_id,
                 )
 
@@ -61,3 +67,10 @@ def create():
 def list_inference():
     results = InferedResult.query.all()
     return jsonify([result.serialize() for result in results])
+
+
+@inference_controller.route("/inference/delete/all/", methods=["DELETE"])
+def delete_all():
+    InferedResult.query.delete()
+    db.session.commit()
+    return jsonify({"message": "All results deleted"})

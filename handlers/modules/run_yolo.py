@@ -41,4 +41,7 @@ def run_yolo_inference(input_image, index, mission_title="mission"):
     temp_output_path = os.path.join(result_dir, f"temp_image_{index}.jpg")
     cv2.imwrite(temp_output_path, detections)
 
-    return temp_output_path
+    return {
+        "annotated_image_path": temp_output_path,
+        "detections": detections_info,
+    }
