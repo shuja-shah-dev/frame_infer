@@ -11,7 +11,9 @@ node_modules
 #Storage
 tmp
 results/
+reports/
 
+#Caches & Secreates
 _pycache_
 .sqlite3
 instance
