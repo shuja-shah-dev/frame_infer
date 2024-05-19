@@ -49,4 +49,21 @@ const BaseLayout = ({ children }) => {
   );
 };
 
+export const baseBtn = {
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  padding: "1rem 1.5rem",
+  background: "#0A7DAA",
+  color: "#fff",
+  fontFamily: "Poppins",
+  fontWeight: "600",
+  fontSize: "1rem",
+  cursor: "pointer",
+  fontSize: "1rem",
+  borderRadius: "0.5rem",
+
+  "&:hover": {},
+};
+
 export default BaseLayout;

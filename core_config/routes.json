@@ -48,7 +48,7 @@
     },
 
     {
-      "path":"/mission/<int:mission_id>/inference/result/download/",
+      "path": "/mission/<int:mission_id>/inference/result/download/",
       "methods": ["GET"],
       "handler": "inference_handler",
       "description": "Download the inference result for a mission"
