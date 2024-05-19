@@ -1,8 +1,8 @@
 .input-field {
   border: none;
   outline: none;
-  background: #fff;
-  color: #000;
+  background: none;
+  color: #fff;
   font-family: 'Poppins', sans-serif;
   font-size: 1rem;
   font-weight: 600;
@@ -12,7 +12,7 @@
   border-radius: 8px;
   width: 100%;
   margin: 0.5rem 0;
-  border: 2px solid #B4B4B4;;
+  border: 2px solid #0A7DAA;
 }
 
 .input-field::placeholder {
