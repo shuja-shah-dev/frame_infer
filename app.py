@@ -63,10 +63,14 @@ migrate = Migrate(app, db)
 #         print(f"Error in sending annotated image: {e}")
 
 
-
 # @app.route("/result/<path:filename>")
 # def get_result(filename):
 #     return send_from_directory("result", filename)
+
+
+@app.route("/results/<path:folder>/<path:filename>")
+def get_results(folder, filename):
+    return send_from_directory(f"results/{folder}", filename)
 
 
 if __name__ == "__main__":

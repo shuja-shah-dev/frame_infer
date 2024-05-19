@@ -8,6 +8,8 @@ import {
   Typography,
   Paper,
   TableBody,
+  CircularProgress,
+  Alert,
 } from "@mui/material";
 import { Button } from "bootstrap";
 import { useEffect } from "react";
@@ -18,6 +20,7 @@ import { baseBtn } from "src/core/BaseLayout";
 import { Close } from "@mui/icons-material";
 
 import "../comp/_stylesheets/login.css";
+import { useNavigate } from "react-router-dom";
 
 /*
 [
@@ -63,6 +66,7 @@ const CreateMission = ({ show, setShowCreate }) => {
   };
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [logMessage, setLogMessage] = useState("");
 
   useEffect(() => {
     if (error) {
@@ -129,7 +133,7 @@ const CreateMission = ({ show, setShowCreate }) => {
     const BASE_URL = BASE_ENDPOINT;
     const formData = new FormData();
     formData.append("mission_id", mission_id);
-
+    setLogMessage("Uploading to s3, this may take a while...");
     recordedFrames.forEach((frame, index) => {
       const imageData = frame.split(",")[1];
       const blob = base64toBlob(imageData, "image/png");
@@ -182,7 +186,6 @@ const CreateMission = ({ show, setShowCreate }) => {
 
       if (res.ok) {
         const data = await res.json();
-        console.log("data", data);
         const videoBlob = generateFramesFromVideo();
         const frames = await extractFrames(videoBlob);
         if (data.mission_id) {
@@ -197,6 +200,16 @@ const CreateMission = ({ show, setShowCreate }) => {
       console.error("Error creating mission: ", err);
     }
   };
+
+  useEffect(() => {
+    return () => {
+      setMedia(null);
+      setTitle("");
+      setLoading(false);
+      setError("");
+      setLogMessage("");
+    };
+  }, []);
 
   return (
     <Box
@@ -300,7 +313,17 @@ const CreateMission = ({ show, setShowCreate }) => {
               ></input>
             </div>
           </div>
+          {logMessage && (
+            <Alert severity="info" sx={{ width: "100%", margin: "1rem auto" }}>
+              {logMessage}
+            </Alert>
+          )}
 
+          {error && (
+            <Alert severity="error" sx={{ width: "100%", margin: "1rem auto" }}>
+              {error}
+            </Alert>
+          )}
           <Box
             sx={{
               width: "100%",
@@ -309,7 +332,17 @@ const CreateMission = ({ show, setShowCreate }) => {
             }}
           >
             <Box sx={baseBtn} onClick={proceedMission}>
-              {loading ? "Loading..." : "Create"}
+              {loading ? (
+                <CircularProgress
+                  sx={{
+                    color: "#fff",
+                    fill: "#fff",
+                  }}
+                  size={10}
+                />
+              ) : (
+                "Create"
+              )}
             </Box>
           </Box>
         </Box>
@@ -321,7 +354,7 @@ const CreateMission = ({ show, setShowCreate }) => {
 const Mission = () => {
   const [missions, setMissions] = useState([]);
   const api = new ApiClient(BASE_ENDPOINT, baseConfig);
-
+  const navigate = useNavigate();
   const $thCell = {
     fontSize: "1rem",
     fontFamily: "Poppins",
@@ -446,7 +479,14 @@ const Mission = () => {
                   }}
                 >
                   <TableCell sx={$trCell}>{mission.id}</TableCell>
-                  <TableCell sx={$trCell}>{mission.title}</TableCell>
+                  <TableCell
+                    sx={{ ...$trCell, cursor: "pointer" }}
+                    onClick={() =>
+                      navigate(`/mission/detail/${mission.id}`)
+                    }
+                  >
+                    {mission.title}
+                  </TableCell>
                   <TableCell sx={$trCell}>
                     {mission.mission_start_date}
                   </TableCell>
