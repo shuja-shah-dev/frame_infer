@@ -104,3 +104,11 @@ def download_results(mission_id):
         os.path.join(output_dir, f"report_para_mission_{mission_id}.pdf"),
         as_attachment=True,
     )
+
+
+@mission_controller.route("/mission/delete/all/", methods=["DELETE"])
+def delete_all_missions():
+    Mission.query.delete()
+    InferedResult.query.delete()
+    db.session.commit()
+    return jsonify({"message": "All missions deleted"})

@@ -412,7 +412,9 @@ const Mission = () => {
         >
           No Missions Found
         </Typography>
-        <Box sx={baseBtn}>Create New</Box>
+        <Box sx={baseBtn} onClick={() => setShowCreate(true)}>
+          Create New
+        </Box>
       </Box>
     </Box>
   );
@@ -448,7 +450,7 @@ const Mission = () => {
             my: "1rem",
             background: "#1D1D1D",
             color: "#fff",
-            maxHeight: "600px",
+            maxHeight: "900px",
             overflowY: "auto",
           }}
         >
@@ -481,9 +483,7 @@ const Mission = () => {
                   <TableCell sx={$trCell}>{mission.id}</TableCell>
                   <TableCell
                     sx={{ ...$trCell, cursor: "pointer" }}
-                    onClick={() =>
-                      navigate(`/mission/detail/${mission.id}`)
-                    }
+                    onClick={() => navigate(`/mission/detail/${mission.id}`)}
                   >
                     {mission.title}
                   </TableCell>

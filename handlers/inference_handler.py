@@ -6,8 +6,23 @@ from shutil import copyfileobj
 
 from .modules.run_yolo import run_yolo_inference
 from core_config.db import db
+import boto3
+from dotenv import load_dotenv
 
 inference_controller = Blueprint("inference_handler", __name__)
+
+
+load_dotenv()
+
+ACCESS_KEY = os.getenv("ACCESS_KEY")
+SECRET_KEY = os.getenv("SECRET_KEY")
+
+s3 = boto3.client(
+    "s3",
+    aws_access_key_id=ACCESS_KEY,
+    aws_secret_access_key=SECRET_KEY,
+    region_name="ap-southeast-4",
+)
 
 
 @inference_controller.route("/inference/create/", methods=["POST"])
@@ -56,6 +71,10 @@ def create():
                 db.session.commit()
 
                 # s3.upload_fileobj(image_file, "ainference", f"temp_image_{index}.jpg")
+                with open(os.path.join(temp_path, image_path), "rb") as f:
+                    s3.upload_fileobj(
+                        f, "ainference", f"mission{mission_id}_image_{index}.jpg"
+                    )
             except Exception as e:
                 print(f"Error processing image {image_path}: {e}")
                 annotated_images.append(image_path)

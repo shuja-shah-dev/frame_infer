@@ -17,18 +17,18 @@ export const NavConfig = [
     strict: true,
   },
 
-  {
-    title: "Analytics",
-    path: "/analytics",
-    icon: (
-      <SmartToyIcon
-        sx={{
-          color: "#fff",
-          fill: "#fff",
-        }}
-      />
-    ),
-    exact: true,
-    strict: true,
-  },
+  // {
+  //   title: "Analytics",
+  //   path: "/analytics",
+  //   icon: (
+  //     <SmartToyIcon
+  //       sx={{
+  //         color: "#fff",
+  //         fill: "#fff",
+  //       }}
+  //     />
+  //   ),
+  //   exact: true,
+  //   strict: true,
+  // },
 ];
