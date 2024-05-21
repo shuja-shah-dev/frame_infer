@@ -383,6 +383,17 @@ const Mission = () => {
       });
   }, []);
 
+  useEffect(() => {
+    api
+      .callApi("_missions")
+      .then((response) => {
+        setMissions(response);
+      })
+      .catch((error) => {
+        throw new Error(error ?? "Request failed for missions");
+      });
+  }, [showCreate]);
+
   const EmptyMissions = () => (
     <Box
       sx={{
