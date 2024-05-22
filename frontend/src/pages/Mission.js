@@ -10,6 +10,8 @@ import {
   TableBody,
   CircularProgress,
   Alert,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 import { Button } from "bootstrap";
 import { useEffect } from "react";
@@ -21,7 +23,7 @@ import { Close } from "@mui/icons-material";
 
 import "../comp/_stylesheets/login.css";
 import { useNavigate } from "react-router-dom";
-
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 /*
 [
     {
@@ -33,6 +35,21 @@ import { useNavigate } from "react-router-dom";
 ]
 
 */
+
+const $thCell = {
+  fontSize: "1rem",
+  fontFamily: "Poppins",
+  fontWeight: "600",
+  color: "#fff",
+  borderBottom: "none",
+};
+
+const $trCell = {
+  fontSize: "1rem",
+  fontFamily: "Poppins",
+  color: "#fff",
+  borderBottom: "none",
+};
 
 const _ico = () => {
   return (
@@ -351,24 +368,188 @@ const CreateMission = ({ show, setShowCreate }) => {
   );
 };
 
+const Row = ({ missions , setMissions}) => {
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+  const navigate = useNavigate();
+
+  return (
+    <>
+      {Array.isArray(missions) && missions.length ? (
+        missions.map((mission) => (
+          <TableRow
+            key={mission.id}
+            sx={{
+              height: "70px",
+            }}
+          >
+            <TableCell sx={$trCell}>{mission.id}</TableCell>
+            <TableCell
+              sx={{ ...$trCell, cursor: "pointer" }}
+              onClick={() => navigate(`/mission/detail/${mission.id}`)}
+            >
+              {mission.title}
+            </TableCell>
+            <TableCell sx={$trCell}>{mission.mission_start_date}</TableCell>
+            <TableCell sx={$trCell}>
+              {mission.mission_status === "active" ? (
+                <Box
+                  sx={{
+                    background: "#00FF00",
+                    borderRadius: "50%",
+                    width: "10px",
+                    height: "10px",
+                  }}
+                ></Box>
+              ) : (
+                <Box
+                  sx={{
+                    background: "#FF0000",
+                    borderRadius: "50%",
+                    width: "10px",
+                    height: "10px",
+                  }}
+                ></Box>
+              )}
+            </TableCell>
+            <TableCell sx={$trCell}>
+              <MoreVertIcon
+                sx={{
+                  fill: "#fff",
+                  cursor: "pointer",
+                  color: "#fff",
+                }}
+                onClick={handleClick}
+              />
+              <Menu
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+                MenuListProps={{
+                  "aria-labelledby": "basic-button",
+                }}
+              >
+                <MenuItem
+                  onClick={() => navigate(`/mission/detail/${mission.id}`)}
+                >
+                  View
+                </MenuItem>
+                <MenuItem
+                  onClick={async (_) => {
+                    await fetch(
+                      `${BASE_ENDPOINT}/mission/${mission.id}/delete/`,
+                      {
+                        method: "DELETE",
+                      }
+                    );
+                    setMissions(
+                      missions.filter(
+                        (m) => Number(m.id) !== Number(mission.id)
+                      )
+                    );
+                    handleClose(_);
+                  }}
+                >
+                  Delete
+                </MenuItem>
+              </Menu>
+            </TableCell>
+          </TableRow>
+        ))
+      ) : (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100%",
+            width: "100%",
+          }}
+        >
+          <CircularProgress
+            sx={{
+              color: "#fff",
+              fill: "#fff",
+            }}
+          />
+        </Box>
+      )}
+    </>
+  );
+};
+
+const MissionList = ({ missions, setShowCreate, setMissions }) => {
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        width: "100%",
+        height: "100%",
+        padding: "0 1rem",
+      }}
+    >
+      <Box
+        sx={{
+          width: "100%",
+          display: "flex",
+          justifyContent: "flex-end",
+        }}
+      >
+        <Box
+          sx={{ ...baseBtn, my: "1rem" }}
+          onClick={() => setShowCreate(true)}
+        >
+          Create New
+        </Box>
+      </Box>
+      <TableContainer
+        component={Paper}
+        sx={{
+          my: "1rem",
+          background: "#1D1D1D",
+          color: "#fff",
+          maxHeight: "900px",
+          overflowY: "auto",
+        }}
+      >
+        <Table>
+          <TableHead>
+            <TableRow
+              sx={{
+                background: "#393939",
+                height: "80px",
+                fontSize: "1rem",
+                fontFamily: "Poppins",
+                fontWeight: "600",
+                color: "#fff",
+              }}
+            >
+              <TableCell sx={$thCell}>ID</TableCell>
+              <TableCell sx={$thCell}>Title</TableCell>
+              <TableCell sx={$thCell}>Start Date</TableCell>
+              <TableCell sx={$thCell}>Status</TableCell>
+              <TableCell sx={$thCell}> </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            <Row missions={missions} setMissions={setMissions}/>
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Box>
+  );
+};
+
 const Mission = () => {
   const [missions, setMissions] = useState([]);
   const api = new ApiClient(BASE_ENDPOINT, baseConfig);
-  const navigate = useNavigate();
-  const $thCell = {
-    fontSize: "1rem",
-    fontFamily: "Poppins",
-    fontWeight: "600",
-    color: "#fff",
-    borderBottom: "none",
-  };
-
-  const $trCell = {
-    fontSize: "1rem",
-    fontFamily: "Poppins",
-    color: "#fff",
-    borderBottom: "none",
-  };
 
   const [showCreate, setShowCreate] = useState(false);
 
@@ -430,107 +611,6 @@ const Mission = () => {
     </Box>
   );
 
-  const MissionList = () => {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          width: "100%",
-          height: "100%",
-          padding: "0 1rem",
-        }}
-      >
-        <Box
-          sx={{
-            width: "100%",
-            display: "flex",
-            justifyContent: "flex-end",
-          }}
-        >
-          <Box
-            sx={{ ...baseBtn, my: "1rem" }}
-            onClick={() => setShowCreate(true)}
-          >
-            Create New
-          </Box>
-        </Box>
-        <TableContainer
-          component={Paper}
-          sx={{
-            my: "1rem",
-            background: "#1D1D1D",
-            color: "#fff",
-            maxHeight: "900px",
-            overflowY: "auto",
-          }}
-        >
-          <Table>
-            <TableHead>
-              <TableRow
-                sx={{
-                  background: "#393939",
-                  height: "80px",
-                  fontSize: "1rem",
-                  fontFamily: "Poppins",
-                  fontWeight: "600",
-                  color: "#fff",
-                }}
-              >
-                <TableCell sx={$thCell}>ID</TableCell>
-                <TableCell sx={$thCell}>Title</TableCell>
-                <TableCell sx={$thCell}>Start Date</TableCell>
-                <TableCell sx={$thCell}>Status</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {missions.map((mission) => (
-                <TableRow
-                  key={mission.id}
-                  sx={{
-                    height: "70px",
-                  }}
-                >
-                  <TableCell sx={$trCell}>{mission.id}</TableCell>
-                  <TableCell
-                    sx={{ ...$trCell, cursor: "pointer" }}
-                    onClick={() => navigate(`/mission/detail/${mission.id}`)}
-                  >
-                    {mission.title}
-                  </TableCell>
-                  <TableCell sx={$trCell}>
-                    {mission.mission_start_date}
-                  </TableCell>
-                  <TableCell sx={$trCell}>
-                    {mission.mission_status === "active" ? (
-                      <Box
-                        sx={{
-                          background: "#00FF00",
-                          borderRadius: "50%",
-                          width: "10px",
-                          height: "10px",
-                        }}
-                      ></Box>
-                    ) : (
-                      <Box
-                        sx={{
-                          background: "#FF0000",
-                          borderRadius: "50%",
-                          width: "10px",
-                          height: "10px",
-                        }}
-                      ></Box>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Box>
-    );
-  };
-
   return (
     <Box
       sx={{
@@ -541,7 +621,7 @@ const Mission = () => {
       }}
     >
       {Array.isArray(missions) && missions.length ? (
-        <MissionList />
+        <MissionList missions={missions} setShowCreate={setShowCreate} setMissions={setMissions} />
       ) : (
         <EmptyMissions />
       )}

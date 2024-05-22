@@ -16,7 +16,7 @@ const MissionDetail = () => {
 
   function convertPathToUrl(filePath) {
     filePath = filePath.replace(/\\/g, "/");
-    const relativePath = filePath.split("Frame_Tester")[1];
+    const relativePath = filePath.split("frame_infer")[1];
     const url = BASE_ENDPOINT + relativePath;
     return url;
   }
@@ -49,6 +49,10 @@ const MissionDetail = () => {
 
     fetchData();
   }, [mission_id]);
+
+  useEffect(() => {
+    console.log("data", data);
+  }, [data]);
 
   return Array.isArray(data.result) && data.result.length ? (
     <Box
