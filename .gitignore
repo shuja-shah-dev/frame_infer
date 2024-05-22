@@ -4,9 +4,6 @@ node_modules
 .idea
 .vscode
 
-# Models
-/model
-*.pt
 
 #Storage
 tmp
