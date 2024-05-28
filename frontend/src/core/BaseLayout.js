@@ -17,6 +17,7 @@ const BaseLayout = ({ children }) => {
           height: "100%",
           width: "100%",
           background: "#1D1D1D",
+          overflow:'hidden'
         }}
       >
         <Box
