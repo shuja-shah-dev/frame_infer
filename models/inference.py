@@ -13,6 +13,7 @@ class InferedResult(db.Model):
             "image_path": self.image_path,
             "detections": self.detections,
             "mission_id": self.mission_id,
+            "img_src":f'/results/mission_{self.mission_id}/temp_image_{self.id - 1}.jpg/'
         }
 
     def __repr__(self):

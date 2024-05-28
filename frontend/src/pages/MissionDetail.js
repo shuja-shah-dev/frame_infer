@@ -15,9 +15,7 @@ const MissionDetail = () => {
   const api = new ApiClient(BASE_ENDPOINT, baseConfig);
 
   function convertPathToUrl(filePath) {
-    filePath = filePath.replace(/\\/g, "/");
-    const relativePath = filePath.split("frame_infer")[1];
-    const url = BASE_ENDPOINT + relativePath;
+    const url = BASE_ENDPOINT + filePath;
     return url;
   }
   useEffect(() => {
@@ -38,7 +36,7 @@ const MissionDetail = () => {
             target: $target,
             result: results.map(($entity) => ({
               ...$entity,
-              image: convertPathToUrl($entity.image_path),
+              image: convertPathToUrl($entity.img_src),
             })),
           });
         }
