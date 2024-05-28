@@ -34,7 +34,7 @@ const BaseLayout = ({ children }) => {
               color: "#fff",
               fontSize: "1.5rem",
               fontFamily: "Poppins",
-              textTransform:'uppercase',
+              textTransform:'capitalize',
               fontWeight: "600",
             }}
           >
