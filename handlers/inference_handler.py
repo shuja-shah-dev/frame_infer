@@ -59,6 +59,7 @@ def create():
                 annotated_image_path = yolo["annotated_image_path"]
                 detections = yolo["detections"]
                 annotated_images.append(annotated_image_path)
+                
                 # {'detections': '(no detections), ', 'speed': {'preprocess': 21.993398666381836, 'inference': 418.86401176452637, 'postprocess': 1518.674373626709}, 'names': {0: 'anomaly'}}, '1')
 
                 new_result = InferedResult(
