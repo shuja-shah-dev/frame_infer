@@ -112,8 +112,8 @@ def prepare_pdf(detections, output_path):
         c.setFont("Helvetica", 12)
         c.drawString(100, y_position, f"ID: {detection['id']}")
         y_position -= 20
-        c.drawString(100, y_position, f"Image Path: {detection['image_path']}")
-        y_position -= 20
+        # c.drawString(100, y_position, f"Image Path: {detection['image_path']}")
+
         c.drawString(100, y_position, f"Detections: {detection['detections']}")
         y_position -= 20
         c.drawString(100, y_position, f"Coordinates: ({lat}, {lon})")
@@ -132,6 +132,6 @@ def prepare_pdf(detections, output_path):
         image_reader = ImageReader(buffered)
 
         c.drawImage(image_reader, 100, y_position - thumbnail_height, width=thumbnail_width, height=thumbnail_height)
-        y_position -= thumbnail_height + 30
+        y_position -= thumbnail_height + 50
 
     c.save()
